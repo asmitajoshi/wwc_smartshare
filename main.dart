@@ -20,34 +20,53 @@ class MyHomePage extends StatelessWidget {
 
   final String title;
 
-  Widget refreshFeed() {
-
-  }
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text(title)),
-      body: new StreamBuilder(
-          stream: Firestore.instance.collection('notes').snapshots(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) return const Text('Loading...');
-            return new ListView.builder(
-                itemCount: snapshot.data.documents.length,
-                padding: const EdgeInsets.only(top: 10.0),
-                itemExtent: 25.0,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot ds = snapshot.data.documents[index];
-                  //List<String> usersArr = [];
-                  String users = 'TODO subdir parse and array';
-                  //var arr = @{ds['Users']};
-                  //for (int i = 0; i < arr.length; i++) {
-                  //  users += arr[i];
-                  //}
-
-                  return new Text(" ${ds['Name']} ${ds['Body']} ${ds['Date']} $users");
-                }
-            );
-          }),
+    return MaterialApp(
+        title: 'SmartShare',
+        home: NewButton()
     );
   }
+}
+
+class NewButtonState extends State<NewButton> {
+  Widget dbOut = new Text('askjd');
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold (
+        appBar: AppBar(title: Text('Smart Share'),),
+        body: new Column(
+            children: <Widget>[
+              new FloatingActionButton(
+                child: new Text('Click'),
+                onPressed: () { setState(() => (dbOut = refreshFeed())); },
+              ),
+              Flexible(child: dbOut),
+            ]));
+  }
+
+  Widget refreshFeed() {
+    return new StreamBuilder(
+        stream: Firestore.instance.collection('notes').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Text('Now Loading...');
+          return new ListView.builder(
+              itemCount: snapshot.data.documents.length,
+              padding: const EdgeInsets.only(top: 10.0),
+              itemExtent: 25.0,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = snapshot.data.documents[index];
+                String users = 'TODO subdir parse and array';
+                return new Text(" ${ds['Name']} ${ds['Body']} ${ds['Date']} $users");
+              }
+          );
+        });
+  }
+
+
+}
+
+class NewButton extends StatefulWidget {
+  @override
+  NewButtonState createState() => new NewButtonState();
 }
