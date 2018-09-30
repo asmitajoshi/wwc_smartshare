@@ -30,22 +30,49 @@ class MyHomePage extends StatelessWidget {
 }
 
 class NewButtonState extends State<NewButton> {
-  Widget dbOut = new Text('askjd');
+  Widget dbOut = new Text('');
+  var counter = 0;
+  List<String> team = new List();
   @override
   Widget build(BuildContext context) {
+    team.add("Suchitra");
+    team.add("Gomathy");
+    team.add("Jenny");
+    team.add("Anusha");
+    team.add("Asmita");
+
     return Scaffold (
         appBar: AppBar(title: Text('Smart Share'),),
         body: new Column(
             children: <Widget>[
               new FloatingActionButton(
-                child: new Text('Click'),
-                onPressed: () { setState(() => (dbOut = refreshFeed())); },
+                child: new Text('Notes'),
+                onPressed: () { setState(() {
+                  String selected = team[counter];
+                  dbOut = refreshFeed(selected);
+                  counter = counter + 1;
+                }); },
               ),
               Flexible(child: dbOut),
             ]));
   }
-
-  Widget refreshFeed() {
+  Widget refreshFeed(String selected) {
+    return new StreamBuilder(
+        stream: Firestore.instance.collection('notes').where('User', isEqualTo: selected).snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const Text('Now Loading...');
+          return new ListView.builder(
+              itemCount: snapshot.data.documents.length,
+              padding: const EdgeInsets.only(top: 10.0),
+              itemExtent: 25.0,
+              itemBuilder: (context, index) {
+                DocumentSnapshot ds = snapshot.data.documents[index];
+                return new Text("Title: ${ds['Name']}\n\n\nUser: ${ds['User']}\n\n${ds['Body']} \n\nDate: ${ds['Date']}");
+              }
+          );
+        });
+  }
+  Widget refreshEntireFeed() {
     return new StreamBuilder(
         stream: Firestore.instance.collection('notes').snapshots(),
         builder: (context, snapshot) {
@@ -56,8 +83,7 @@ class NewButtonState extends State<NewButton> {
               itemExtent: 25.0,
               itemBuilder: (context, index) {
                 DocumentSnapshot ds = snapshot.data.documents[index];
-                String users = 'TODO subdir parse and array';
-                return new Text(" ${ds['Name']} ${ds['Body']} ${ds['Date']} $users");
+                return new Text("Title: ${ds['Name']}\n\n\nUser: ${ds['User']}\n\n${ds['Body']} \n\nDate: ${ds['Date']}");
               }
           );
         });
