@@ -1,1 +1,0 @@
-# wwc_smartshare
